@@ -1,0 +1,59 @@
+name:                AppM
+version:             0.1.0.0
+github:              "ppzzppz/AppM.git"
+license:             BSD3
+author:              "diqye"
+maintainer:          "262666212@qq.com"
+copyright:           "copyright"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/diqye/AppM#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- warp
+- wai
+- transformers
+- http-types
+- bytestring
+- text
+- directory
+- filepath
+- wai-websockets
+- websockets
+- aeson
+
+library:
+  source-dirs: src
+
+executables:
+  AppM-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - AppM
+
+tests:
+  AppM-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - AppM
