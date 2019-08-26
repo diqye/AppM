@@ -49,7 +49,7 @@ renderBrowse list path =
   <> (fromString $ foldl alink "" list)
   <> "</body>"
   <> "</html>"
-  where alink acc a = acc <> "<div><a href=\"javascript:location.href=location.href+'/" <>  a <> "'\">" <> a <> "</a></div>"
+  where alink acc a = acc <> "<div><a href=\"javascript:void 0\" onclick=\"javascript:location.href=location.href+'/" <>  a <> "'\">" <> a <> "</a></div>"
 
 fileServe :: MonadIO m => FilePath -> AppT m Application
 fileServe path = do
