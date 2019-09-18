@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
+-- | 早期的一个demo,随库一起提交吧
+-- TODO
 module Main where
 
 import Lib
@@ -16,6 +18,8 @@ import Control.Concurrent.MVar
 import System.IO.Unsafe
 import GHC.Generics
 import Data.Aeson
+-- import Diqye.Moon
+-- import Diqye.ServantTest
 
 
 
@@ -40,9 +44,11 @@ historyMsgs = unsafePerformIO $ newMVar []
 
 
 setting = setPort 8899
-  $ setOnException (\ _ e -> putStrLn $ ("**OnException:\n" ++) $ displayException e)
+  $ setOnException (\ mreq e -> (putStrLn $ ("**OnException:\n" ++) $ displayException e)>>putStrLn "\n" >> putStrLn (show mreq))
   $ setOnExceptionResponse exceptionResponseForDebug
-  $ setTimeout (30*60*60)
+  -- $ setTimeout (30*60*60)
+  $ setTimeout 10
+  $ setFdCacheDuration 2
   $ defaultSettings
 main :: IO ()
 main = runSettings setting $ toApplication $ myapp

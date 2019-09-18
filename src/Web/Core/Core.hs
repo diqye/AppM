@@ -18,6 +18,7 @@ module Web.Core.Core
   , respStream
   , respFile
   , toApplication
+  , appTToApplication
   ) where
 import  Network.Wai
   ( Application
@@ -49,6 +50,7 @@ import qualified Network.HTTP.Types as HT
 import qualified Network.Wai.Handler.Warp as HW
 import Control.Monad.Trans.Class
 import Control.Monad
+import Data.Monoid
 import Data.String
 import Control.Monad.IO.Class(liftIO)
 import Control.Exception(SomeException,catch,displayException)
@@ -102,32 +104,38 @@ pureResp resp = pure $ result
 
 respLBS :: Monad m => HT.Status -> BL.ByteString -> AppT m Application
 respLBS status content = do
-  headers <- getResponseHeaders
-  pureResp $ responseLBS status headers content
+  pureResp $ responseLBS status [] content
 
 respLTS :: Monad m => HT.Status -> TL.Text -> AppT m Application
 respLTS status = respLBS status . LE.encodeUtf8
 
 respStream :: Monad m => HT.Status -> StreamingBody -> AppT m Application
 respStream status body = do
-  headers <- getResponseHeaders
-  pureResp $ responseStream status headers body
+  pureResp $ responseStream status [] body
 
 respFile :: Monad m => HT.Status -> FilePath ->Maybe FilePart -> AppT m Application
 respFile status filepath part = do
-  headers <- getResponseHeaders
-  pureResp $ responseFile status headers filepath part
+  pureResp $ responseFile status [] filepath part
 
 -- | HTTP中默认的Header
 commonHeader = [("Server","AppM/1.0.0")]
 
+
+
+-- | AappT m Application 转 Application
+appTToApplication :: Monad m => AppT m Application -> (m (Maybe Application,AppState) -> IO (Application,AppState)) -> Application
+appTToApplication appT trans req respod = do
+  let runT = runStateT . runMaybeT
+  (app,(req',headers)) <- trans $ runT  appT $ (req,commonHeader)
+  modifyResponse (mapResponseHeaders  (<> headers)) app  req' respod
+
+
 -- | AppIO 转为 WAI中的Application
 toApplication :: AppIO -> Application
-toApplication appIO request respod = do
-  let runT = runStateT . runMaybeT
-  (maybeApp,(req,_)) <- runT appIO (request,commonHeader)
-  case maybeApp of Nothing -> noapp
-                   (Just app) -> runApp $ app req
-  where noapp = respod $ responseLBS HT.status404 [] $ ""
-        runApp appfn = appfn respod
+toApplication appIO = appTToApplication appIO trans 
+  where trans ior = do
+          (mapp,a) <- ior
+          case mapp of Nothing -> pure $ (noapp,a)
+                       Just app -> pure $ (app,a)
+        noapp req respod = respod $ responseLBS HT.status404 [] $ ""
 

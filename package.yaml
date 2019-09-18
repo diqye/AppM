@@ -32,21 +32,24 @@ dependencies:
 - wai-websockets
 - websockets
 - aeson
+- string-conversions
 
 library:
   source-dirs: src
 
+#
 executables:
-  AppM-exe:
-    main:                Main.hs
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - AppM
+ AppM-exe:
+   main:                Main.hs
+   source-dirs:         app
+   ghc-options:
+   - -threaded
+   - -rtsopts
+   - -with-rtsopts=-N
+   dependencies:
+   - AppM
 
+#
 tests:
   AppM-test:
     main:                Spec.hs
