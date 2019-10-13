@@ -1,6 +1,6 @@
 # AppM
-基于Wai的Monad
-## 使用示例
+更便利的写Web程序
+## 简单示例
 ```haskell
 import Web.AppM
 import Web.Static.Static
@@ -11,8 +11,8 @@ myapp = msum
   -- 文件服务和目录浏览
   [ consum "dirserve" >> (dirServe "/Users/diqye" ["package.yaml"] <|> dirBrowse "/Users/diqye" )
   -- websocket
-  , consum "websocket" >> socketApp
-  -- 抛错示例
+  , consum "websocket" >> respSocket' (socketApp::ServerApp)
+  -- IO和抛错示例
   , consum "throw" >> (liftIO $ readFile "saf/asfdas/d") >> dirBrowse "."
   ]
 
@@ -24,4 +24,34 @@ setting = setPort 8899
 
 main :: IO ()
 main = runSettings setting $ toApplication $ myapp
+```
+## servant
+```haskell
+{-# LANGUAGE OverloadedStrings,OverloadedStrings,DataKinds,TypeOperators,DeriveGeneric #-}
+import Data.String(fromString)
+import Data.String.Conversions(cs)
+import Control.Monad.IO.Class(liftIO)
+-- ------------------------------------------------
+import Network.Wai
+import Network.Wai.Handler.Warp
+import Servant
+import Servant.API
+
+-- | app :: Monad m => AppT m Application
+-- Or app:: AppIO
+app = pure $ serve (Proxy::Proxy API) serverAPI
+
+type API = Get '[JSON] (String,String)
+  :<|> "cat" :> Capture "name" String :> Get '[JSON] String
+
+getJSON = do
+  liftIO $ putStrLn "getJSON"
+  pure ("a","b")
+
+getJSONWithName name = do
+  liftIO $ putStrLn name
+  pure "getJSONWithName"
+
+serverAPI :: Server API
+serverAPI = getJSON :<|> getJSONWithName
 ```
