@@ -9,7 +9,7 @@ import Web.WebSocket.WebSocket
 myapp :: AppIO
 myapp = msum
   -- 文件服务和目录浏览
-  [ consum "dirserve" >> (dirBrowse "/Users/diqye" <|> dirServe "/Users/diqye" ["package.yaml"])
+  [ consum "dirserve" >> (dirServe "/Users/diqye" ["package.yaml"] <|> dirBrowse "/Users/diqye" )
   -- websocket
   , consum "websocket" >> socketApp
   -- 抛错示例
