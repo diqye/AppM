@@ -31,7 +31,7 @@ main = runSettings setting $ toApplication $ myapp
 import Data.String(fromString)
 import Data.String.Conversions(cs)
 import Control.Monad.IO.Class(liftIO)
--- ------------------------------------------------
+-- -----------------------------------------------
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
@@ -39,6 +39,7 @@ import Servant.API
 
 -- | app :: Monad m => AppT m Application
 -- Or app:: AppIO
+-- 运行  run $ toApplication $ app
 app = pure $ serve (Proxy::Proxy API) serverAPI
 
 type API = Get '[JSON] (String,String)
