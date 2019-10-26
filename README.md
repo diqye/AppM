@@ -1,5 +1,5 @@
 # AppM
-更便利的写Web程序
+高性能的warp,睿智的mtl结合在一起，就是AppM。
 ## 简单示例
 ```haskell
 import Web.AppM
