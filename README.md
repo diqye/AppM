@@ -1,6 +1,6 @@
 # AppM
-高性能的warp,睿智的mtl结合在一起，就是AppM。
-## 简单示例
+Wrap + Transform
+## Examples
 ```haskell
 import Web.AppM
 import Web.Static.Static
@@ -8,11 +8,10 @@ import Web.WebSocket.WebSocket
 
 myapp :: AppIO
 myapp = msum
-  -- 文件服务和目录浏览
-  [ consum "dirserve" >> (dirServe "/Users/diqye" ["package.yaml"] <|> dirBrowse "/Users/diqye" )
-  -- websocket
+[ consum "dirserve" >> (dirServe "/Users/diqye" ["package.yaml"] <|> dirBrowse "/Users/diqye" )
+  -- websocket example
   , consum "websocket" >> respSocket' (socketApp::ServerApp)
-  -- IO和抛错示例
+  -- IO and exception examples
   , consum "throw" >> (liftIO $ readFile "saf/asfdas/d") >> dirBrowse "."
   ]
 
@@ -39,7 +38,7 @@ import Servant.API
 
 -- | app :: Monad m => AppT m Application
 -- Or app:: AppIO
--- 运行  run $ toApplication $ app
+-- Outside to run $ toApplication $ app
 app = pure $ serve (Proxy::Proxy API) serverAPI
 
 type API = Get '[JSON] (String,String)
