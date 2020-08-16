@@ -1,6 +1,9 @@
 # AppM
 Wrap + Transform
 ## Examples
+
+See app/Main.hs for details
+
 ```haskell
 import Web.AppM
 import Web.Static.Static
