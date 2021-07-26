@@ -3,6 +3,9 @@ module Web.Static.Static
   ( fileServe
   , dirBrowse
   , dirServe
+  , dirBrowseJSON
+  , authBasic
+  , authBasicValue
   ) where
 
 import Web.AppM
@@ -10,6 +13,11 @@ import qualified System.Directory as D
 import qualified Data.Text as T
 import qualified System.FilePath as F
 import Data.Monoid
+import Data.Aeson
+import Data.String.Conversions(cs)
+import Data.ByteString(ByteString)
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Base64 as B64
 
 dirServe :: MonadIO m => FilePath -> [FilePath] -> AppT m Application
 dirServe path defaultIndex = do
@@ -27,6 +35,31 @@ dirServe path defaultIndex = do
           a <- D.doesFileExist path
           if a then pure (Just path) else pure Nothing
 
+authBasicValue :: Monad m => AppT m (Maybe (ByteString,ByteString))
+authBasicValue = do
+  req <- getRequest
+  let maybeAuthen = lookup "Authorization" $ requestHeaders req
+  let r = fmap fn maybeAuthen
+  pure r
+  where fn = fmap (B.drop 1) . B.breakSubstring ":" . B64.decodeLenient . B.drop 6
+ 
+
+authBasic ::  Monad m =>  AppT m Application
+authBasic = do
+  putHeader "WWW-Authenticate" "Basic"
+  respLBS status401 ""
+
+dirBrowseJSON :: MonadIO m => FilePath -> AppT m Application
+dirBrowseJSON baseDir = do
+  req <- getRequest
+  let paths = map T.unpack $ pathInfo req
+  let path = foldl (F.</>) baseDir paths
+  a <- liftIO $ D.doesDirectoryExist path
+  guard a
+  list <- liftIO $ D.listDirectory path
+  putJSONHeader
+  respLTS status200 $ cs $ encode $ list
+
 dirBrowse :: MonadIO m => FilePath -> AppT m Application
 dirBrowse baseDir = do
   req <- getRequest
@@ -41,6 +74,9 @@ dirBrowse baseDir = do
 renderBrowse list path = 
   "<html>"
   <> "<head>"
+  <> "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"
+  <> "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover\">"
+  <> "<style>body{padding:10px;display:flex;flex-wrap: wrap;align-content: center;justify-content: space-around;}div{padding: 0 10px; background: #f1f1f1; margin: 4px; display: flex; justify-content: center; align-items: center; height: 34px; border-radius: 4px;color:#333;}div:hover{color:#316ccb;}a{text-decoration:none;color:inherit}</style>"
   <> "  <title>"
   <> (fromString $ F.takeBaseName path)
   <> "  </title>"
@@ -49,7 +85,7 @@ renderBrowse list path =
   <> (fromString $ foldl alink "" list)
   <> "</body>"
   <> "</html>"
-  where alink acc a = acc <> "<div><a href=\"javascript:void 0\" onclick=\"javascript:location.href=location.href+'/" <>  a <> "'\">" <> a <> "</a></div>"
+  where alink acc a = acc <> "<div><a href=\"./" <>  a <> "/\">" <> a <> "</a></div>"
 
 fileServe :: MonadIO m => FilePath -> AppT m Application
 fileServe path = do

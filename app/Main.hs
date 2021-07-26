@@ -43,7 +43,7 @@ historyMsgs = unsafePerformIO $ newMVar []
 
 
 
-setting = setPort 8899
+setting = setPort 8888
   $ setOnException (\ mreq e -> (putStrLn $ ("**OnException:\n" ++) $ displayException e)>>putStrLn "\n" >> putStrLn (show mreq))
   $ setOnExceptionResponse exceptionResponseForDebug
   -- $ setTimeout (30*60*60)
@@ -96,7 +96,7 @@ socketApp = do
     let logic = reciveLogic name conn
     msgs <- readMVar historyMsgs
     sendTextData conn $ encode $ InitMsgs msgs
-    forkPingThread conn 30
+    -- forkPingThread conn 30
     logic `catch` removeConn (name,conn) logic
     where removeConn :: (String,Connection) -> IO () -> ConnectionException -> IO ()
           removeConn (name,conn) logic (CloseRequest _ _) = do
@@ -134,7 +134,11 @@ sendAll users text = do
   
 myapp :: AppIO
 myapp = msum
-  [ consum "dirserve" >> (dirBrowse "/Users/diqye" <|> dirServe "/Users/diqye" ["package.yaml"])
+  [ consum "dirserve" >> (dirBrowseJSON "/Users/zhenlong.qin" <|> dirServe "/Users/zhenlong.qin" ["package.yaml"])
+  , do consum "dirserve1"
+       a <- authBasicValue
+       let r = dirBrowse "/Users/zhenlong.qin" <|> dirServe "/Users/zhenlong.qin" ["package.yaml"]
+       if a == Just ("your sis","you") then  r else authBasic
   , consum "websocket" >> socketApp
   , consum "throw" >> (liftIO $ readFile "saf/asfdas/d") >> dirBrowse "."
   ]

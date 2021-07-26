@@ -10,3 +10,6 @@ import Web.Core.Core
 
 putHtmlHeader :: Monad m => AppT m ()
 putHtmlHeader = putHeader "Content-Type" "text/html; charset=utf-8"
+
+putJSONHeader :: Monad m => AppT m ()
+putJSONHeader  = putHeader "Content-Type" "application/json"

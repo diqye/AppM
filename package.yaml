@@ -1,4 +1,4 @@
-name:                AppM
+name:                appm
 version:             0.1.0.0
 github:              "ppzzppz/AppM.git"
 license:             BSD3
@@ -33,13 +33,14 @@ dependencies:
 - websockets
 - aeson
 - string-conversions
+- base64-bytestring
 
 library:
   source-dirs: src
 
 #
 executables:
- AppM-exe:
+ appm-exe:
    main:                Main.hs
    source-dirs:         app
    ghc-options:
@@ -47,11 +48,11 @@ executables:
    - -rtsopts
    - -with-rtsopts=-N
    dependencies:
-   - AppM
+   - appm
 
 #
 tests:
-  AppM-test:
+  appm-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -59,4 +60,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - AppM
+    - appm
