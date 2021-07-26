@@ -1,0 +1,108 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 2297eea418bb7a57fc7a19fe3600382ab89355b7a43054cae7ee6e2b60652368
+
+name:           appm
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/diqye/AppM#readme>
+homepage:       https://github.com/ppzzppz/AppM.git#readme
+bug-reports:    https://github.com/ppzzppz/AppM.git/issues
+author:         diqye
+maintainer:     262666212@qq.com
+copyright:      copyright
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/ppzzppz/AppM.git
+
+library
+  exposed-modules:
+      Lib
+      Web.AppM
+      Web.Core.Core
+      Web.Core.Header
+      Web.Core.Method
+      Web.Core.ToValue
+      Web.Static.Static
+      Web.WebSocket.WebSocket
+  other-modules:
+      Paths_appm
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , base64-bytestring
+    , bytestring
+    , directory
+    , filepath
+    , http-types
+    , string-conversions
+    , text
+    , transformers
+    , wai
+    , wai-websockets
+    , warp
+    , websockets
+  default-language: Haskell2010
+
+executable appm-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_appm
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , appm
+    , base >=4.7 && <5
+    , base64-bytestring
+    , bytestring
+    , directory
+    , filepath
+    , http-types
+    , string-conversions
+    , text
+    , transformers
+    , wai
+    , wai-websockets
+    , warp
+    , websockets
+  default-language: Haskell2010
+
+test-suite appm-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_appm
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , appm
+    , base >=4.7 && <5
+    , base64-bytestring
+    , bytestring
+    , directory
+    , filepath
+    , http-types
+    , string-conversions
+    , text
+    , transformers
+    , wai
+    , wai-websockets
+    , warp
+    , websockets
+  default-language: Haskell2010
