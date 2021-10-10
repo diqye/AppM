@@ -1,5 +1,17 @@
 # AppM
 Wrap + Transform
+## install
+stack.yaml
+```yaml
+extra-deps: 
+  - git: https://github.com/diqye/appm.git 
+    commit: 0956ae3e476f6206541af0beaeb503dc821b9ad6
+```
+package.yaml
+```yaml
+dependencies:
+- appm
+```
 ## Examples
 
 See app/Main.hs for details
