@@ -12,6 +12,7 @@ module Web.Core.Core
   , putHeader
   , getResponseHeaders
   , consum
+  , home
   , pureResp
   , respLBS
   , respLTS
@@ -91,12 +92,23 @@ getResponseHeaders = do
   pure headers
 
 -- | 消费一个path
+--  /hello -> hello
+-- consum "hello" >> respLBS status200 "hello"
 consum :: Monad m => T.Text -> AppT m ()
 consum path = do
   request <- getRequest
   let paths = W.pathInfo request
   guard $ length paths /= 0 && head paths == path
   putRequest $ request {W.pathInfo = tail paths}
+
+-- | home
+-- / -> home
+-- home >> respLBS status200 "home"
+home :: Monad m => AppT m ()
+home = do
+  request <- getRequest
+  let paths = W.pathInfo request
+  guard $ null paths
 
 pureResp :: Monad m => Response -> m Application
 pureResp resp = pure $ result
@@ -120,6 +132,11 @@ respFile status filepath part = do
 -- | HTTP中默认的Header
 commonHeader = [("Server","AppM/1.0.0")]
 
+
+
+-- | runApplication
+runAppT :: Monad m => AppT m a -> AppState -> m (Maybe a,AppState)
+runAppT appt state = runStateT (runMaybeT $ appt) state
 
 
 -- | AappT m Application 转 Application

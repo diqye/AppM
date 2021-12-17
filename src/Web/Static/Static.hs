@@ -56,7 +56,13 @@ dirBrowseJSON baseDir = do
   let path = foldl (F.</>) baseDir paths
   a <- liftIO $ D.doesDirectoryExist path
   guard a
-  list <- liftIO $ D.listDirectory path
+  list <- liftIO $ do
+    xs <- D.listDirectory path
+    forM xs $ \ x -> do
+      let absPath = path F.</> x
+      isDirectory <- D.doesDirectoryExist absPath
+      size <- if isDirectory then pure 0 else D.getFileSize absPath
+      pure (x,size)
   putJSONHeader
   respLTS status200 $ cs $ encode $ list
 

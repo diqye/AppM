@@ -134,13 +134,14 @@ sendAll users text = do
   
 myapp :: AppIO
 myapp = msum
-  [ consum "dirserve" >> (dirBrowseJSON "/Users/zhenlong.qin" <|> dirServe "/Users/zhenlong.qin" ["package.yaml"])
+  [ consum "dirserve" >> (dirBrowseJSON "/Users/" <|> dirServe "/Users/" ["package.yaml"])
   , do consum "dirserve1"
        a <- authBasicValue
        let r = dirBrowse "/Users/zhenlong.qin" <|> dirServe "/Users/zhenlong.qin" ["package.yaml"]
        if a == Just ("your sis","you") then  r else authBasic
   , consum "websocket" >> socketApp
   , consum "throw" >> (liftIO $ readFile "saf/asfdas/d") >> dirBrowse "."
+  , home >> respLBS status200 "i am home"
   ]
 
 
