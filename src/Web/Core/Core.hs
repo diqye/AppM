@@ -13,6 +13,10 @@ module Web.Core.Core
   , getResponseHeaders
   , consum
   , home
+  , getAppState
+  , putAppState
+  , appTry
+  , appmsum
   , pureResp
   , respLBS
   , respLTS
@@ -51,7 +55,9 @@ import qualified Network.HTTP.Types as HT
 import qualified Network.Wai.Handler.Warp as HW
 import Control.Monad.Trans.Class
 import Control.Monad
+import Control.Monad.IO.Class
 import Data.Monoid
+import Control.Applicative(empty,(<|>))
 import Data.String
 import Control.Monad.IO.Class(liftIO)
 import Control.Exception(SomeException,catch,displayException)
@@ -66,6 +72,27 @@ type AppT m = MaybeT (StateT AppState m)
 type AppM a = AppT IO a
 type AppIO = AppM Application
 
+
+getAppState :: Monad m => AppT m AppState
+getAppState = lift $ get
+
+putAppState :: Monad m => AppState -> AppT m ()
+putAppState state = lift $ put $ state
+
+-- | 还原状态
+-- appTry $ consum "hello" >> empty
+-- consum "hello" -> respLBS status200 "hello"
+-- /hello -> "hello"
+-- 如果不使用appTry 执行到empty之后路径就会变成/
+appTry :: Monad m => AppT m a -> AppT m a
+appTry appt = do
+  state <- getAppState
+  appt <|> do 
+    putAppState state
+    empty
+
+
+appmsum xs = msum $ map appTry xs
 
 -- | 获取Request
 getRequest :: Monad m => AppT m Request

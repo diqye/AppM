@@ -22,7 +22,7 @@ import Web.Static.Static
 import Web.WebSocket.WebSocket
 
 myapp :: AppIO
-myapp = msum
+myapp = appmsum
 [ consum "dirserve" >> (dirServe "/Users/diqye" ["package.yaml"] <|> dirBrowse "/Users/diqye" )
   -- websocket example
   , consum "websocket" >> respSocket' (socketApp::ServerApp)
@@ -51,9 +51,7 @@ import Network.Wai.Handler.Warp
 import Servant
 import Servant.API
 
--- | app :: Monad m => AppT m Application
--- Or app:: AppIO
--- Outside to run $ toApplication $ app
+-- | app :: AppIO
 app = pure $ serve (Proxy::Proxy API) serverAPI
 
 type API = Get '[JSON] (String,String)
