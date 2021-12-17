@@ -5,7 +5,7 @@ stack.yaml
 ```yaml
 extra-deps: 
   - git: https://github.com/diqye/appm.git 
-    commit: 0956ae3e476f6206541af0beaeb503dc821b9ad6
+    commit: 509c15221b4b486f7bd39d5e4a484ec7f110cac5
 ```
 package.yaml
 ```yaml
