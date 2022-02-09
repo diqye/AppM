@@ -7,6 +7,7 @@ module Web.Core.ToValue
   , queryV
   , bodyQueryV
   , bodyJSONV
+  , URLToValue
   ) where
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
