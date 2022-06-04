@@ -19,6 +19,7 @@ import Data.ByteString(ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Base64 as B64
 
+-- | 静态服务于目录下的文件
 dirServe :: MonadIO m => FilePath -> [FilePath] -> AppT m Application
 dirServe path defaultIndex = do
   req <- getRequest
@@ -35,6 +36,7 @@ dirServe path defaultIndex = do
           a <- D.doesFileExist path
           if a then pure (Just path) else pure Nothing
 
+-- | 解码之basic authoruzation之用户名与密码，得之 
 authBasicValue :: Monad m => AppT m (Maybe (ByteString,ByteString))
 authBasicValue = do
   req <- getRequest
@@ -43,12 +45,13 @@ authBasicValue = do
   pure r
   where fn = fmap (B.drop 1) . B.breakSubstring ":" . B64.decodeLenient . B.drop 6
  
-
+-- | Basic协议之Auth
 authBasic ::  Monad m =>  AppT m Application
 authBasic = do
   putHeader "WWW-Authenticate" "Basic"
   respLBS status401 ""
 
+-- | 以JSON形式输出目录内文件，目录以-1之，文件以容量大小之
 dirBrowseJSON :: MonadIO m => FilePath -> AppT m Application
 dirBrowseJSON baseDir = do
   req <- getRequest
@@ -61,11 +64,12 @@ dirBrowseJSON baseDir = do
     forM xs $ \ x -> do
       let absPath = path F.</> x
       isDirectory <- D.doesDirectoryExist absPath
-      size <- if isDirectory then pure 0 else D.getFileSize absPath
+      size <- if isDirectory then pure -1 else D.getFileSize absPath
       pure (x,size)
   putJSONHeader
   respLTS status200 $ cs $ encode $ list
 
+-- | 以网页形式列出文件夹下内容
 dirBrowse :: MonadIO m => FilePath -> AppT m Application
 dirBrowse baseDir = do
   req <- getRequest
