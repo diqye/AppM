@@ -64,7 +64,7 @@ dirBrowseJSON baseDir = do
     forM xs $ \ x -> do
       let absPath = path F.</> x
       isDirectory <- D.doesDirectoryExist absPath
-      size <- if isDirectory then pure -1 else D.getFileSize absPath
+      size <- if isDirectory then pure (-1) else D.getFileSize absPath
       pure (x,size)
   putJSONHeader
   respLTS status200 $ cs $ encode $ list
