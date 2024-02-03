@@ -1,17 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
-
--- | 关键逻辑
--- 感谢trasforms提供的高度抽象，省去了大量的代码
--- 吾生也有涯，而知也无涯。以有涯随无涯，殆已！已而为知者，殆而已矣！
 module Web.Core.Core
   ( AppT
   , AppM
   , AppIO
+  , AppState
   , getRequest
   , putRequest
   , putHeader
   , getResponseHeaders
-  , consum
+  , consume
   , home
   , getAppState
   , putAppState
@@ -24,6 +21,8 @@ module Web.Core.Core
   , respFile
   , toApplication
   , appTToApplication
+  , appm_version
+  , respJSON
   ) where
 import  Network.Wai
   ( Application
@@ -33,6 +32,7 @@ import  Network.Wai
   , StreamingBody
   , responseStream
   , FilePart
+  , requestHeaders
   , requestMethod
   )
 import Control.Monad.Trans.State
@@ -46,6 +46,7 @@ import Control.Monad.Trans.Maybe
  , runMaybeT
  )
 import Network.Wai as W
+import qualified Data.Aeson as A
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
@@ -62,10 +63,15 @@ import Data.String
 import Control.Monad.IO.Class(liftIO)
 import Control.Exception(SomeException,catch,displayException)
 
--- | 所需要的State
+appm_version = "1.0.0"
+
+
+putJSONHeader :: Monad m => AppT m ()
+putJSONHeader  = putHeader "Content-Type" "application/json"
+-- | A state with 'Request' and 'HT.ResponseHeaders
 type AppState = (Request,HT.ResponseHeaders)
 
--- | AppT m a 用于处理Web服务相关入口东西
+-- | A `MaybeT` including `StateT` wrapping
 type AppT m = MaybeT (StateT AppState m)
 
 
@@ -79,11 +85,12 @@ getAppState = lift $ get
 putAppState :: Monad m => AppState -> AppT m ()
 putAppState state = lift $ put $ state
 
--- | 还原状态
+-- | Restore state
+-- @
 -- appTry $ consum "hello" >> empty
 -- consum "hello" -> respLBS status200 "hello"
--- /hello -> "hello"
--- 如果不使用appTry 执行到empty之后路径就会变成/
+-- @ 
+-- If you visit `/hello` it will be response string `"hello"`, when remove 'appTry` it will be empty
 appTry :: Monad m => AppT m a -> AppT m a
 appTry appt = do
   state <- getAppState
@@ -92,43 +99,48 @@ appTry appt = do
     empty
 
 
+-- | A safer version of  'msum' 
 appmsum xs = msum $ map appTry xs
 
--- | 获取Request
 getRequest :: Monad m => AppT m Request
 getRequest = do
   (req,_) <- lift $ get
   pure req
 
--- | 替换Request
 putRequest :: Monad m => Request -> AppT m ()
 putRequest req = do
   (_,state) <- lift $ get
   lift $ put $ (req,state)
 
--- | 添加ResponseHeader
 putHeader :: Monad m => HT.HeaderName -> B.ByteString -> AppT m ()
 putHeader name val = do
   (req,headers) <- lift $ get
   lift $ put $ (req,(name,val):headers)
 
--- | 获取ResponseHeaders
+getRequestHeader :: Monad m => HT.HeaderName -> AppT m (Maybe B.ByteString)
+getRequestHeader name = do
+  req <- getRequest
+  let headers = requestHeaders req
+  pure $ lookup name headers
+
 getResponseHeaders :: Monad m => AppT m HT.ResponseHeaders
 getResponseHeaders = do
   (_,headers) <- lift $ get
   pure headers
 
--- | 消费一个path
---  /hello -> hello
+-- | Route a path
+-- @
 -- consum "hello" >> respLBS status200 "hello"
-consum :: Monad m => T.Text -> AppT m ()
-consum path = do
+-- @
+-- Visit `/hello` will respond with `"hello"`
+consume :: Monad m => T.Text -> AppT m ()
+consume path = do
   request <- getRequest
   let paths = W.pathInfo request
   guard $ length paths /= 0 && head paths == path
   putRequest $ request {W.pathInfo = tail paths}
 
--- | home
+-- | A home router eg `/`
 -- / -> home
 -- home >> respLBS status200 "home"
 home :: Monad m => AppT m ()
@@ -145,6 +157,11 @@ respLBS :: Monad m => HT.Status -> BL.ByteString -> AppT m Application
 respLBS status content = do
   pureResp $ responseLBS status [] content
 
+respJSON :: (Monad m,A.ToJSON v) => HT.Status -> v -> AppT m Application
+respJSON status v = do
+  putJSONHeader
+  pureResp $ responseLBS status [] (A.encode v)
+
 respLTS :: Monad m => HT.Status -> TL.Text -> AppT m Application
 respLTS status = respLBS status . LE.encodeUtf8
 
@@ -156,8 +173,8 @@ respFile :: Monad m => HT.Status -> FilePath ->Maybe FilePart -> AppT m Applicat
 respFile status filepath part = do
   pureResp $ responseFile status [] filepath part
 
--- | HTTP中默认的Header
-commonHeader = [("Server","AppM/1.0.0")]
+-- | Default Header
+commonHeader = [("Server","version " <> appm_version <> " " <> "https://github.com/diqye/appm")]
 
 
 

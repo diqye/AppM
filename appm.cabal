@@ -1,16 +1,16 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2297eea418bb7a57fc7a19fe3600382ab89355b7a43054cae7ee6e2b60652368
+-- hash: ed12b941e6ee43c23ae6cafee1594cf56f010816a8596327ded8c85a7e32193c
 
 name:           appm
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/diqye/AppM#readme>
-homepage:       https://github.com/ppzzppz/AppM.git#readme
-bug-reports:    https://github.com/ppzzppz/AppM.git/issues
+description:    A web server with a routing system implemented using `Warp` <https://github.com/diqye/appm#readme>
+homepage:       https://github.com/diqye/appm.git#readme
+bug-reports:    https://github.com/diqye/appm.git/issues
 author:         diqye
 maintainer:     262666212@qq.com
 copyright:      copyright
@@ -23,7 +23,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/ppzzppz/AppM.git
+  location: https://github.com/diqye/appm.git
 
 library
   exposed-modules:

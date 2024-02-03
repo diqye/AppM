@@ -3,10 +3,11 @@
 -- 常记溪亭日暮，沉醉不知归路。兴尽晚回舟，误入藕花深处。
 -- 争渡，争渡，惊起一滩鸥鹭。
 module Web.Core.ToValue
-  ( consumV
+  ( consumeV
   , queryV
   , bodyQueryV
   , bodyJSONV
+  , bodyV
   , URLToValue
   ) where
 import qualified Data.Text as T
@@ -20,7 +21,6 @@ import Control.Monad.IO.Class
 import Network.Wai as W
 import qualified Data.Text.Lazy.Encoding as LE
 import qualified Data.ByteString.Lazy as BL
-import Data.String.Conversions
 import Data.Aeson
 import Network.HTTP.Types.URI
 import Data.String.Conversions
@@ -59,23 +59,12 @@ instance URLToValue Int
 instance URLToValue Integer
 instance URLToValue Float
 instance URLToValue Double
+instance URLToValue Bool
 
-{-
-instance URLToValue String where
-  toValue = Just . T.unpack
 
-instance URLToValue T.Text where
-  toValue = Just . id
-
-instance URLToValue TL.Text where
-  toValue = Just . TL.fromStrict
-instance URLToValue BL.ByteString where
-  toValue = Just . LE.encodeUtf8 . TL.fromStrict
--}
-
--- |a <- consumA :: Int -- a=123123
-consumV :: (URLToValue a,Monad m) => AppT m a
-consumV = do
+-- | Consume a path as parameter
+consumeV :: (URLToValue a,Monad m) => AppT m a
+consumeV = do
   request <- getRequest
   let paths = W.pathInfo request
   guard $ length paths /= 0
@@ -84,7 +73,7 @@ consumV = do
   putRequest $ request {W.pathInfo = tail paths}
   pure a
   
--- | querystring 处理方案
+-- | querystring 
 queryV :: (URLToValue a,Monad m) => String -> AppT m a
 queryV key = do
   req <- getRequest
@@ -93,21 +82,26 @@ queryV key = do
   let val = maybe "" cs maybeVal
   MaybeT $ pure $ toValue val
 
--- | body中 querystring格式处理
+-- | body 
+bodyV :: MonadIO m => AppT m BL.ByteString
+bodyV = do
+  req <- getRequest
+  liftIO $ W.strictRequestBody req
+
+-- | querystring in body
 bodyQueryV :: (URLToValue a,MonadIO m) => String -> AppT m a
 bodyQueryV key = do
-  req <- getRequest
-  bsquery <- liftIO $ W.strictRequestBody req
+  bsquery <- bodyV
   let query = parseQuery $ cs bsquery
   maybeVal <- MaybeT $ pure $ lookup (cs key) query
   let val = maybe "" cs maybeVal
   MaybeT $ pure $ toValue val
 
--- | body 中 json格式处理
+-- | json in body
 bodyJSONV :: (FromJSON a,MonadIO m) => AppT m a
 bodyJSONV = do
-  req <- getRequest
-  bsjson <- liftIO $ W.lazyRequestBody req
+  bsjson <- bodyV
   MaybeT $ pure $ decode bsjson
+
   
   

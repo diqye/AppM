@@ -1,6 +1,6 @@
 name:                appm
 version:             0.1.0.0
-github:              "ppzzppz/AppM.git"
+github:              "diqye/appm.git"
 license:             BSD3
 author:              "diqye"
 maintainer:          "262666212@qq.com"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/diqye/AppM#readme>
+description: A web server with a routing system implemented using `Warp` <https://github.com/diqye/appm#readme>
 
 dependencies:
 - base >= 4.7 && < 5
