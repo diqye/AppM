@@ -1,5 +1,5 @@
 # appm
- A web server with a routing system implemented using `Warp`
+ A web framework with a routing system implemented using `Warp`
 ## install
 Add dependencies in package.yaml
 ```yaml

@@ -5,6 +5,8 @@ license:             BSD3
 author:              "diqye"
 maintainer:          "262666212@qq.com"
 copyright:           "copyright"
+category:            "Web"
+synopsis:            "A Web framwork"
 
 extra-source-files:
 - README.md
@@ -17,7 +19,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description: A web server with a routing system implemented using `Warp` <https://github.com/diqye/appm#readme>
+description: A web framwork with a routing system implemented using `Warp` <https://github.com/diqye/appm#readme>
 
 dependencies:
 - base >= 4.7 && < 5

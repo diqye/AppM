@@ -4,11 +4,13 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ed12b941e6ee43c23ae6cafee1594cf56f010816a8596327ded8c85a7e32193c
+-- hash: f54e1f0361a6c601c71e71d41a9797dd5c0ef87c6497280ab7065b51a5df28f2
 
 name:           appm
 version:        0.1.0.0
-description:    A web server with a routing system implemented using `Warp` <https://github.com/diqye/appm#readme>
+synopsis:       A Web framwork
+description:    A web framwork with a routing system implemented using `Warp` <https://github.com/diqye/appm#readme>
+category:       Web
 homepage:       https://github.com/diqye/appm.git#readme
 bug-reports:    https://github.com/diqye/appm.git/issues
 author:         diqye
