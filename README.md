@@ -69,7 +69,7 @@ intercept = do
 
 ```
 
-## servant
+## servant Support
 ```haskell
 {-# LANGUAGE OverloadedStrings,OverloadedStrings,DataKinds,TypeOperators,DeriveGeneric #-}
 import Data.String(fromString)
@@ -97,4 +97,16 @@ getJSONWithName name = do
 
 serverAPI :: Server API
 serverAPI = getJSON :<|> getJSONWithName
+```
+## Static file server
+
+`Web.Static.Static` 
+```Haskell
+dirServe :: MonadIO m => FilePath -> [FilePath] -> AppT m Application
+```
+
+## Websockets
+`Web.WebSocket.WebSocket`
+```Haskell
+respSocket' :: Monad m => ServerApp -> AppT m Application
 ```

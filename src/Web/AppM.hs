@@ -53,7 +53,7 @@
 --   guard $  continued == False -- `/all/path?without continued=False` will continuing
 --   W.respLBS W.status500 "Continuing is not allowed" -- `/all/path?continued=False` will respond with "Continuing is now allowed"
 -- -- @
--- Support servant, seeing README for more detail
+-- Support servant, websockets and static file server seeing README for more detail
 module Web.AppM 
   ( module Network.Wai
   , module Control.Monad.Trans.State
