@@ -21,7 +21,7 @@ module Web.Core.Core
   , respFile
   , toApplication
   , appTToApplication
-  , appm_version
+  , version
   , respJSON
   ) where
 import  Network.Wai
@@ -62,8 +62,10 @@ import Control.Applicative(empty,(<|>))
 import Data.String
 import Control.Monad.IO.Class(liftIO)
 import Control.Exception(SomeException,catch,displayException)
+import Paths_appm(version)
+import Data.String(fromString)
+import Data.Version(versionBranch)
 
-appm_version = "1.0.0"
 
 
 putJSONHeader :: Monad m => AppT m ()
@@ -174,7 +176,7 @@ respFile status filepath part = do
   pureResp $ responseFile status [] filepath part
 
 -- | Default Header
-commonHeader = [("Server","version " <> appm_version <> " " <> "https://github.com/diqye/appm")]
+commonHeader = [("Server","version " <> fromString (show $ versionBranch version) <> " " <> "https://github.com/diqye/appm")]
 
 
 
